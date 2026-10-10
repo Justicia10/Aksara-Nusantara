@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PageId, Story } from '../types';
-import { STORIES } from '../data/stories';
-import { REGIONS } from '../data/regions';
+import { useContent } from '../lib/content';
+import { SafeImage } from './SafeImage';
 
 interface HomePageProps {
   onNavigate: (page: PageId, storyId?: string) => void;
@@ -16,8 +16,9 @@ export const HomePage: React.FC<HomePageProps> = ({
 }) => {
   const [selectedArchipelagoKey, setSelectedArchipelagoKey] = useState<string>('sulawesi');
   const [homeSearch, setHomeSearch] = useState('');
+  const { stories: STORIES, regions: REGIONS } = useContent();
 
-  const featuredStory = STORIES[0]; // Roro Jonggrang
+  const featuredStory = STORIES.find((s) => !s.metadataOnly) ?? STORIES[0];
   const curatedStories = STORIES.filter(s => ['danau-toba', 'sawerigading', 'cenderawasih'].includes(s.id));
   const activeRegionData = REGIONS[selectedArchipelagoKey] || REGIONS['sulawesi'];
 
@@ -83,7 +84,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             {/* Micro Stats Ticker */}
             <div className="grid grid-cols-3 gap-4 sm:gap-8 pt-6 border-t border-[#E7E0D4] w-full max-w-xl text-left sm:text-center">
               <div>
-                <div className="text-2xl sm:text-3xl font-extrabold text-[#0e2444]">120+</div>
+                <div className="text-2xl sm:text-3xl font-extrabold text-[#0e2444]">{STORIES.length}</div>
                 <div className="text-xs sm:text-sm text-[#667483] font-medium">Cerita Arsip Terkurasi</div>
               </div>
               <div>
@@ -205,7 +206,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               className="bg-[#FCFAF5] rounded-2xl border border-[#E7E0D4] overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group hover:-translate-y-1"
             >
               <div className="relative aspect-16/10 overflow-hidden bg-[#F3EFE7]">
-                <img
+                <SafeImage
                   src={story.imageUrl}
                   alt={story.imageAlt}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -299,7 +300,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <div className="lg:col-span-7">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-[#9d422a] bg-[#F5DED6] px-2.5 py-1 rounded-md">
-                  {activeRegionData.badge}
+                  {`Wilayah Terpilih • ${STORIES.filter((s) => s.regionKey === activeRegionData.key).length} Naskah`}
                 </span>
                 <span className="text-xs text-[#667483] font-medium">{activeRegionData.provinces}</span>
               </div>
@@ -337,7 +338,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   onClick={() => onNavigate('katalog-cerita')}
                   className="text-[#0e2444] hover:text-[#9d422a] font-bold text-sm inline-flex items-center gap-1 cursor-pointer"
                 >
-                  <span>Lihat {activeRegionData.storyCount} Naskah Terkait</span>
+                  <span>Lihat {STORIES.filter((s) => s.regionKey === activeRegionData.key).length} Naskah Terkait</span>
                   <span className="material-symbols-outlined text-[16px]">chevron_right</span>
                 </button>
               </div>
@@ -358,7 +359,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                       className="p-3 bg-[#FCFAF5] rounded-xl border border-[#E7E0D4] hover:border-[#9d422a]/40 hover:shadow-sm transition-all flex items-center justify-between cursor-pointer group"
                     >
                       <div className="flex items-center gap-3">
-                        <img
+                        <SafeImage
                           src={s.imageUrl}
                           alt={s.title}
                           className="w-12 h-12 rounded-lg object-cover"

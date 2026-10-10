@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { PageId, RegionKey, StoryTheme, TargetReader } from '../types';
-import { STORIES } from '../data/stories';
+import { useContent, countByRegion } from '../lib/content';
+import { SafeImage } from './SafeImage';
 
 interface CatalogPageProps {
   onNavigate: (page: PageId, storyId?: string) => void;
@@ -20,15 +21,16 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
   const [selectedReader, setSelectedReader] = useState<TargetReader>('all');
   const [sortBy, setSortBy] = useState<'populer' | 'terbaru' | 'durasi' | 'az'>('populer');
   const [currentPageNum, setCurrentPageNum] = useState<number>(1);
+  const { stories: STORIES } = useContent();
 
   const regionCounts: Record<string, number> = {
-    all: 84,
-    sumatera: 18,
-    jawa: 24,
-    kalimantan: 12,
-    sulawesi: 15,
-    'bali-nusa': 14,
-    'maluku-papua': 16,
+    all: countByRegion(STORIES, 'all'),
+    sumatera: countByRegion(STORIES, 'sumatera'),
+    jawa: countByRegion(STORIES, 'jawa'),
+    kalimantan: countByRegion(STORIES, 'kalimantan'),
+    sulawesi: countByRegion(STORIES, 'sulawesi'),
+    'bali-nusa': countByRegion(STORIES, 'bali-nusa'),
+    'maluku-papua': countByRegion(STORIES, 'maluku-papua'),
   };
 
   const filteredStories = useMemo(() => {
@@ -61,14 +63,15 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
         const inCategory = story.category.toLowerCase().includes(q);
         const inSummary = story.summary.toLowerCase().includes(q);
         const inTradition = story.tradition.toLowerCase().includes(q);
-        if (!inTitle && !inRegion && !inCategory && !inSummary && !inTradition) {
+        const inKeywords = (story.keywords ?? []).some((k) => k.toLowerCase().includes(q)); // FR-SRCH-02
+        if (!inTitle && !inRegion && !inCategory && !inSummary && !inTradition && !inKeywords) {
           return false;
         }
       }
 
       return true;
     }).sort((a, b) => {
-      if (sortBy === 'populer') return (b.reviewCount || 0) - (a.reviewCount || 0);
+      if (sortBy === 'populer') return 0; // curated order (no review data exists)
       if (sortBy === 'durasi') return a.readingTimeMinutes - b.readingTimeMinutes;
       if (sortBy === 'az') return a.title.localeCompare(b.title);
       return 0;
@@ -208,7 +211,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="bg-[#FCFAF5] border border-[#E7E0D4] text-[#0e2444] font-semibold rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer"
               >
-                <option value="populer">Terpopuler</option>
+                <option value="populer">Pilihan Kurasi</option>
                 <option value="durasi">Durasi Membaca Cepat</option>
                 <option value="az">Abjad (A-Z)</option>
               </select>
@@ -257,7 +260,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
               >
                 {/* Image Cover */}
                 <div className="relative aspect-16/10 overflow-hidden bg-[#F3EFE7]">
-                  <img
+                  <SafeImage
                     src={story.imageUrl}
                     alt={story.imageAlt}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -300,7 +303,7 @@ export const CatalogPage: React.FC<CatalogPageProps> = ({
 
                     <div className="pt-3 border-t border-[#E7E0D4] flex items-center justify-between">
                       <span className="text-[11px] text-[#667483]">
-                        ⭐ {story.rating} ({story.reviewCount} ulasan)
+                        {story.metadataOnly ? 'Naskah segera hadir' : story.interactive2DStatus === 'ready' ? '🎮 Tersedia mode jelajah 2D' : 'Pembaca standar'}
                       </span>
                       <button
                         onClick={() => onNavigate('baca-cerita', story.id)}

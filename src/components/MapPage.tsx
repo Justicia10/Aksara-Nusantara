@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PageId } from '../types';
-import { REGIONS } from '../data/regions';
-import { STORIES } from '../data/stories';
+import { useContent } from '../lib/content';
+import { SafeImage } from './SafeImage';
 
 interface MapPageProps {
   onNavigate: (page: PageId, storyId?: string) => void;
@@ -18,19 +18,22 @@ export const MapPage: React.FC<MapPageProps> = ({
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>('all');
   const [zoomLevel, setZoomLevel] = useState<number>(1);
 
+  const { stories: STORIES, regions: REGIONS } = useContent();
   const regionData = REGIONS[selectedKey] || REGIONS['sulawesi'];
+  const countOf = (k: string) => STORIES.filter((s) => s.regionKey === k).length;
 
   // Map markers coordinates on SVG viewBox [0 0 1000 480]
   const islandPins = [
-    { key: 'sumatera', name: 'Sumatera', code: 'SMT-ID', x: 220, y: 220, count: 18, category: 'kerajaan' },
-    { key: 'kalimantan', name: 'Kalimantan', code: 'KLM-ID', x: 440, y: 210, count: 12, category: 'pegunungan' },
-    { key: 'jawa', name: 'Jawa & Madura', code: 'JWA-ID', x: 380, y: 350, count: 24, category: 'kerajaan' },
-    { key: 'sulawesi', name: 'Sulawesi', code: 'SLW-ID', x: 610, y: 230, count: 15, category: 'bahari' },
-    { key: 'balinusra', name: 'Bali & Nusra', code: 'BLN-ID', x: 530, y: 380, count: 14, category: 'bahari' },
-    { key: 'maluku', name: 'Maluku', code: 'MLK-ID', x: 740, y: 240, count: 8, category: 'bahari' },
-    { key: 'papua', name: 'Papua', code: 'PPU-ID', x: 880, y: 260, count: 8, category: 'pegunungan' },
+    { key: 'sumatera', name: 'Sumatera', code: 'SMT-ID', x: 220, y: 220, count: 0, category: 'kerajaan' },
+    { key: 'kalimantan', name: 'Kalimantan', code: 'KLM-ID', x: 440, y: 210, count: 0, category: 'pegunungan' },
+    { key: 'jawa', name: 'Jawa & Madura', code: 'JWA-ID', x: 380, y: 350, count: 0, category: 'kerajaan' },
+    { key: 'sulawesi', name: 'Sulawesi', code: 'SLW-ID', x: 610, y: 230, count: 0, category: 'bahari' },
+    { key: 'balinusra', name: 'Bali & Nusra', code: 'BLN-ID', x: 530, y: 380, count: 0, category: 'bahari' },
+    { key: 'maluku', name: 'Maluku', code: 'MLK-ID', x: 740, y: 240, count: 0, category: 'bahari' },
+    { key: 'papua', name: 'Papua', code: 'PPU-ID', x: 880, y: 260, count: 0, category: 'pegunungan' },
   ];
 
+  islandPins.forEach((p) => { p.count = countOf(p.key); });
   const regionStories = STORIES.filter(s => {
     if (selectedKey === 'sumatera') return s.regionKey === 'sumatera';
     if (selectedKey === 'jawa') return s.regionKey === 'jawa';
@@ -339,7 +342,7 @@ export const MapPage: React.FC<MapPageProps> = ({
                   {regionData.code}
                 </span>
                 <span className="text-xs font-bold uppercase tracking-wider text-[#9d422a]">
-                  {regionData.badge}
+                  {`Wilayah Terpilih • ${countOf(regionData.key)} Naskah`}
                 </span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-[#0e2444]">
@@ -432,7 +435,7 @@ export const MapPage: React.FC<MapPageProps> = ({
                     className="bg-[#FCFAF5] rounded-xl border border-[#E7E0D4] overflow-hidden hover:shadow-md transition-all group flex flex-col justify-between"
                   >
                     <div className="relative aspect-16/9 bg-[#F3EFE7] overflow-hidden">
-                      <img
+                      <SafeImage
                         src={story.imageUrl}
                         alt={story.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

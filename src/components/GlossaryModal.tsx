@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { GLOSSARY_TERMS } from '../data/glossary';
+import React, { useEffect, useState } from 'react';
+import { useContent } from '../lib/content';
 
 interface GlossaryModalProps {
   isOpen: boolean;
@@ -15,8 +15,16 @@ export const GlossaryModal: React.FC<GlossaryModalProps> = ({
   const [search, setSearch] = useState('');
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
 
-  if (!isOpen) return null;
+  const { glossary: GLOSSARY_TERMS } = useContent();
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
   const filtered = GLOSSARY_TERMS.filter((item) => {
     const matchSearch =
       item.term.toLowerCase().includes(search.toLowerCase()) ||
@@ -36,11 +44,12 @@ export const GlossaryModal: React.FC<GlossaryModalProps> = ({
             <span className="material-symbols-outlined text-[#9d422a] text-[24px]">menu_book</span>
             <div>
               <h3 className="font-bold text-lg text-[#0e2444]">Glosarium Istilah Adat Nusantara</h3>
-              <p className="text-xs text-[#667483]">Kamus rujukan etnofolklor dan bahasa daerah terverifikasi</p>
+              <p className="text-xs text-[#667483]">Kamus rujukan etnofolklor dan bahasa daerah</p>
             </div>
           </div>
           <button
             onClick={onClose}
+            aria-label="Tutup glosarium"
             className="p-1.5 rounded-lg text-[#667483] hover:text-[#0e2444] hover:bg-[#E7E0D4]/60 transition-colors"
           >
             <span className="material-symbols-outlined text-[20px]">close</span>
@@ -112,7 +121,7 @@ export const GlossaryModal: React.FC<GlossaryModalProps> = ({
 
         {/* Footer info */}
         <div className="px-6 py-3 bg-[#F3EFE7] border-t border-[#E7E0D4] flex items-center justify-between text-[11px] text-[#667483]">
-          <span>Rujukan: Balai Pustaka & Pusat Pembinaan Bahasa Kemendikbudristek</span>
+          <span>Istilah sedang dalam proses verifikasi kurator</span>
           <button
             onClick={onClose}
             className="px-3 py-1 bg-[#0e2444] text-white rounded-lg hover:bg-[#1D2E49] transition-colors"

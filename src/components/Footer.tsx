@@ -31,7 +31,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenGlossary }) =>
             </p>
             <div className="pt-2 flex items-center gap-2 text-xs text-[#90a4cb]">
               <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
-              <span>120+ Naskah Terkurasi Bersama Lembaga Adat & Balai Pustaka</span>
+              <span>Naskah terkurasi dengan sumber yang dapat ditelusuri</span>
             </div>
           </div>
 
@@ -168,6 +168,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenGlossary }) =>
               className="hover:text-white transition-colors cursor-pointer"
             >
               Hubungi Dewan Kurator
+            </button>
+            <button
+              onClick={() => onNavigate('admin')}
+              data-testid="footer-admin"
+              className="hover:text-white transition-colors cursor-pointer opacity-70"
+            >
+              Admin
             </button>
           </div>
         </div>

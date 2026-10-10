@@ -131,17 +131,10 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={() => onNavigate('katalog-cerita')}
-            className="inline-flex items-center justify-center bg-[#9d422a] text-white px-4 sm:px-5 py-2 rounded-xl text-[14px] font-semibold transition-all hover:bg-[#0e2444] shadow-[0_2px_6px_-1px_rgba(23,32,42,0.12)] cursor-pointer"
+            className="hidden sm:inline-flex items-center justify-center bg-[#9d422a] text-white px-4 sm:px-5 py-2 rounded-xl text-[14px] font-semibold transition-all hover:bg-[#0e2444] shadow-[0_2px_6px_-1px_rgba(23,32,42,0.12)] cursor-pointer"
           >
             Mulai Menjelajah
           </button>
-
-          <div
-            title="Akun Pembaca Terdaftar"
-            className="w-8 h-8 rounded-full bg-[#0e2444] text-white flex items-center justify-center shrink-0 shadow-sm cursor-default"
-          >
-            <span className="material-symbols-outlined text-[18px]">person</span>
-          </div>
 
           {/* Mobile menu button */}
           <button
