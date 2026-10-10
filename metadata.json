@@ -1,0 +1,6 @@
+{
+  "name": "Nusantara Gemar Membaca",
+  "description": "Platform membaca dan eksplorasi folklor Nusantara terkurasi dengan konteks adat, riset etnofolklor, dan peta interaktif kepulauan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
