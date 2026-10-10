@@ -23,6 +23,8 @@ export interface Scene {
   }>;
   paragraphs: string[];
   culturalAnnotation: CulturalAnnotation;
+  /** Provenance of `imageUrl`, provided by the server from the VisualAsset record (never inferred from the URL). */
+  visual?: SceneVisual;
 
   // ---- Interactive 2D (all optional, FR-2D-MODE-04) ----
   mode?: ReaderMode;                 // empty => 'standard'
@@ -35,6 +37,12 @@ export interface Scene {
   storyEvents?: StoryEvent[];
   decorSprites?: DecorSprite[];      // non-interactive scenery
   nextSceneNumber?: number;          // empty on the last scene
+}
+
+export interface SceneVisual {
+  assetId: string;
+  generationMethod: 'ai' | 'manual' | 'unknown';
+  licenseStatus: string;
 }
 
 export interface CulturalAnnotation {
@@ -146,6 +154,9 @@ export interface Story {
   // ---- CMS / publication (server-provided) ----
   status?: PublicationStatus;
   keywords?: string[];
+  coverVisual?: SceneVisual;
+  /** true when the story has no readable scenes yet (catalog shows it, reader explains). */
+  metadataOnly?: boolean;
 
   // ---- Interactive 2D (optional) ----
   defaultReaderMode?: ReaderMode;            // empty => 'standard'
@@ -177,4 +188,14 @@ export interface GlossaryTerm {
   region: string;
   meaning: string;
   culturalContext: string;
+}
+
+/** Payload of GET /api/content (published content only). */
+export interface PublicContent {
+  stories: Story[];
+  regions: Record<string, RegionDetail>;
+  glossary: GlossaryTerm[];
+  pixelAssets: PixelAsset[];
+  avatars: PlayerAvatar[];
+  sources: Array<{ id: string; title: string; author: string; publisher: string; publicationYear: number | null; urlOrReference: string; verificationStatus: string }>;
 }
